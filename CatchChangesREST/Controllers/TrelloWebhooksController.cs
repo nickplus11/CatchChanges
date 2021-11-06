@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CatchChangesREST.DataSources;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
-using TrelloObserver;
 
 namespace CatchChangesREST.Controllers
 {
-    [Route("webhook")]
+    [Route("trello/webhook")]
     public class WebhooksController : Controller
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();

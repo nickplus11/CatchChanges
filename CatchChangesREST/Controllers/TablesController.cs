@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using CatchChangesREST.DataSources;
 using Microsoft.AspNetCore.Mvc;
-using TrelloObserver;
-using TrelloObserver.Models;
+using DataModels;
+using DataModels.Models;
 
 namespace CatchChangesREST.Controllers
 {

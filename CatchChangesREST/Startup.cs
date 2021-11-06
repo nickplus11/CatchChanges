@@ -1,15 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using CatchChangesREST.Clients;
+using CatchChangesREST.DataSources;
+using DataModels;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 
 namespace CatchChangesREST
@@ -31,6 +27,10 @@ namespace CatchChangesREST
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CatchChangesREST", Version = "v1" });
             });
+
+            var assemblies = new[] { typeof(Startup).Assembly };
+            services.RegisterAll<IClient>(assemblies);
+            services.RegisterAll<IDataSource>(assemblies);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,12 +40,9 @@ namespace CatchChangesREST
             {
                 app.UseDeveloperExceptionPage();
             }
-            
+
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "CatchChangesREST v1");
-            });
+            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "CatchChangesREST v1"); });
 
             app.UseHttpsRedirection();
 

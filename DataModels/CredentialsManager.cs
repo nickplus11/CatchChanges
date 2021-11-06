@@ -1,13 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json;
+using DataModels.Models;
 using NLog;
 
-namespace TrelloObserver
+namespace DataModels
 {
-    public record Credentials(string Key, string Token);
-
-    public class Data
+    public static class CredentialsManager
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public static Credentials Credentials;

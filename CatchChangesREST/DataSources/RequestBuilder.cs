@@ -5,15 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using DataModels;
+using DataModels.Models;
 using NLog;
-using NLog.Fluent;
-using TrelloObserver.Models;
 
-namespace TrelloObserver
+namespace CatchChangesREST.DataSources
 {
     public static class RequestBuilder
     {
@@ -21,10 +19,10 @@ namespace TrelloObserver
 
         private static void InitData(out string key, out string token)
         {
-            if (Data.TryInit())
+            if (CredentialsManager.TryInit())
             {
-                key = Data.Credentials.Key;
-                token = Data.Credentials.Token;
+                key = CredentialsManager.Credentials.Key;
+                token = CredentialsManager.Credentials.Token;
             }
             else
             {
@@ -62,7 +60,7 @@ namespace TrelloObserver
                 var stream = await response.Content.ReadAsStreamAsync();
                 var tables = await JsonSerializer.DeserializeAsync<List<Table>>(stream)
                              ?? throw new Exception("Tables have not been received");
-                ;
+
                 foreach (var table in tables)
                 {
                     Logger.Trace($"Received table. Name: {table.Name} Id: {table.Id}");

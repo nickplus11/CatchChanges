@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace TrelloObserver.Models
+namespace DataModels.Models
 {
     public record Table
     {
@@ -21,4 +21,6 @@ namespace TrelloObserver.Models
         [JsonPropertyName("id")] public string Id { get; init; }
         [JsonPropertyName("idList")] public string ListId { get; init; }
     }
+
+    public record Credentials(string Key, string Token);
 }

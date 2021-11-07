@@ -12,5 +12,10 @@ namespace CatchChangesREST
             var content = await reader.ReadToEndAsync();
             return JsonSerializer.Deserialize<T>(content);
         }
+        
+        public static T GetModel<T>(string str)
+        {
+            return JsonSerializer.Deserialize<T>(str);
+        }
     }
 }

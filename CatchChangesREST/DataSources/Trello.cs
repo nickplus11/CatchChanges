@@ -148,7 +148,7 @@ namespace CatchChangesREST.DataSources
             var uri = $"https://api.trello.com/1/tokens/{token}/webhooks/?key={key}";
             var webhookCreatingPostJson = new WebhookCreatingPostJson
             {
-                CallbackUrl = "https://catchchangesrest.azurewebsites.net/webhook/receive",
+                CallbackUrl = "https://catchchangesrest.azurewebsites.net/trello/webhook/receive",
                 IdModel = idModel,
                 Description = "New webhook: " + DateTime.Now
             };

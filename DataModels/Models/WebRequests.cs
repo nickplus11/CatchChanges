@@ -19,4 +19,9 @@ namespace DataModels.Models
     {
         [JsonPropertyName("name")] public string NewName { get; init; }
     }
+    
+    public record CreateWebhookParams
+    {
+        [JsonPropertyName("idModel")] public string IdModel { get; init; }
+    }
 }

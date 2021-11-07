@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
-using CatchChangesREST.DataSources;
-using DataModels;
+using DataModels.Models;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
 
@@ -14,23 +13,22 @@ namespace CatchChangesREST.Controllers
     public class WebhooksController : Controller
     {
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
-        private readonly IReadOnlyList<IDataSource> _dataSources;
+        private readonly SubscriptionService _subscriptionService;
 
-        public WebhooksController(IEnumerable<IDataSource> dataSources)
+        public WebhooksController(SubscriptionService subscriptionService)
         {
-            _dataSources = dataSources.ToList();
+            _subscriptionService = subscriptionService;
         }
 
         [Route("create")]
         [HttpPost]
-        public async Task<IActionResult> CreateWebhooks(string dataSourceName)
+        public async Task<IActionResult> CreateWebhooks(string dataSourceName, [FromBody] JsonElement jsonElement)
         {
             try
             {
-                var dataSource = _dataSources.First(s => s.Name == dataSourceName);
-                var tables = await dataSource.GetAllTablesAsync();
-                _logger.Trace($"{tables.Count} tables have been received.");
-                var table = tables.First(t => t.Name == "KeepWorking");
+                var dataSource = _subscriptionService.DataSourceByName[dataSourceName];
+                var id = JsonSerializer.Deserialize<CreateWebhookParams>(jsonElement.ToString()).IdModel;
+                var table = await dataSource.GetTableAsync(id);
                 _logger.Trace($"Creating new webhook for board: {table.Name}");
                 await dataSource.CreateWebhookAsync(table.Id);
                 return new ContentResult
@@ -48,16 +46,14 @@ namespace CatchChangesREST.Controllers
 
         [Route("receive")]
         [HttpPost]
-        public async Task<IActionResult> ReceiveWebhooks(string dataSourceName)
+        public async Task<IActionResult> ReceiveWebhooks(string dataSourceName, [FromBody] JsonElement jsonElement)
         {
             try
             {
                 _logger.Trace("Started receiving a webhook.");
-                var dataSource = _dataSources.First(s => s.Name == dataSourceName);
-                using var reader = new StreamReader(ControllerContext.HttpContext.Request.Body);
-                var requestBody = await reader.ReadToEndAsync();
-                _logger.Trace($"Receiving new webhook. Request body: {requestBody} Response body: not available now");
-                await dataSource.ReceiveWebhookAsync(requestBody);
+                var dataSource = _subscriptionService.DataSourceByName[dataSourceName];
+                _logger.Trace($"Receiving new webhook. Request body: {jsonElement.ToString()}");
+                await dataSource.ReceiveWebhookAsync(jsonElement.ToString());
                 return new ContentResult
                 {
                     Content = "Webhook receiving executed",

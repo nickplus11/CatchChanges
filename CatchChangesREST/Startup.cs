@@ -31,6 +31,7 @@ namespace CatchChangesREST
             var assemblies = new[] { typeof(Startup).Assembly };
             services.RegisterAll<IClient>(assemblies);
             services.RegisterAll<IDataSource>(assemblies);
+            services.AddSingleton<SubscriptionService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

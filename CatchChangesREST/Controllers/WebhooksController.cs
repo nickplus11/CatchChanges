@@ -4,27 +4,35 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CatchChangesREST.DataSources;
+using DataModels;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
 
 namespace CatchChangesREST.Controllers
 {
-    [Route("trello/webhook")]
+    [Route("{dataSourceName}/webhook")]
     public class WebhooksController : Controller
     {
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+        private readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private readonly IReadOnlyList<IDataSource> _dataSources;
+
+        public WebhooksController(IEnumerable<IDataSource> dataSources)
+        {
+            _dataSources = dataSources.ToList();
+        }
 
         [Route("create")]
         [HttpPost]
-        public async Task<IActionResult> CreateWebhooks()
+        public async Task<IActionResult> CreateWebhooks(string dataSourceName)
         {
             try
             {
-                var tables = await RequestBuilder.GetAllTablesAsync();
-                Logger.Trace($"{tables.Count} tables have been received.");
+                var dataSource = _dataSources.First(s => s.Name == dataSourceName);
+                var tables = await dataSource.GetAllTablesAsync();
+                _logger.Trace($"{tables.Count} tables have been received.");
                 var table = tables.First(t => t.Name == "KeepWorking");
-                Logger.Trace($"Creating new webhook for board: {table.Name}");
-                await RequestBuilder.CreateWebhookAsync(table.Id);
+                _logger.Trace($"Creating new webhook for board: {table.Name}");
+                await dataSource.CreateWebhookAsync(table.Id);
                 return new ContentResult
                 {
                     Content = "Webhook creation executed",
@@ -33,22 +41,23 @@ namespace CatchChangesREST.Controllers
             }
             catch (Exception ex)
             {
-                Logger.Error(ex);
+                _logger.Error(ex);
                 return new EmptyResult();
             }
         }
 
         [Route("receive")]
         [HttpPost]
-        public async Task<IActionResult> ReceiveWebhooks()
+        public async Task<IActionResult> ReceiveWebhooks(string dataSourceName)
         {
             try
             {
-                Logger.Trace("Started receiving a webhook.");
+                _logger.Trace("Started receiving a webhook.");
+                var dataSource = _dataSources.First(s => s.Name == dataSourceName);
                 using var reader = new StreamReader(ControllerContext.HttpContext.Request.Body);
                 var requestBody = await reader.ReadToEndAsync();
-                Logger.Trace($"Receiving new webhook. Request body: {requestBody} Response body: not available now");
-                await RequestBuilder.ReceiveWebhookAsync(requestBody);
+                _logger.Trace($"Receiving new webhook. Request body: {requestBody} Response body: not available now");
+                await dataSource.ReceiveWebhookAsync(requestBody);
                 return new ContentResult
                 {
                     Content = "Webhook receiving executed",
@@ -57,7 +66,7 @@ namespace CatchChangesREST.Controllers
             }
             catch (Exception ex)
             {
-                Logger.Error(ex);
+                _logger.Error(ex);
                 return new EmptyResult();
             }
         }
@@ -68,7 +77,7 @@ namespace CatchChangesREST.Controllers
         /// </summary>
         [Route("receive")]
         [HttpHead]
-        public IActionResult SubmitSupport()
+        public IActionResult SubmitSupport(string dataSourceName)
         {
             return new ContentResult
             {
@@ -76,9 +85,5 @@ namespace CatchChangesREST.Controllers
                 StatusCode = 200
             };
         }
-
-        [Route("get")]
-        [HttpGet]
-        public IReadOnlyList<string> GetReceivedWebhooks() => RequestBuilder.GetReceivedChangesAsync();
     }
 }

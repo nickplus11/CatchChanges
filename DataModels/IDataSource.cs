@@ -53,6 +53,12 @@ namespace DataModels
         public bool HaveChanges { get; }
     }
 
+    public class UpdateReceivedEventArgs : EventArgs, IHaveChanges
+    {
+        public ClientUpdate ClientUpdate { get; set; }
+        public bool HaveChanges { get; }
+    }
+
     public interface IHaveChanges
     {
         public bool HaveChanges { get; }

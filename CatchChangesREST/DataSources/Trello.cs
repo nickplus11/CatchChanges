@@ -55,7 +55,7 @@ namespace CatchChangesREST.DataSources
         {
             try
             {
-                InitData(out var key, out var token);
+                InitData(out var key, out var token, out _);
                 var url = $"https://api.trello.com/1/boards/{targetTable.Id}";
                 var model = new
                 {
@@ -144,7 +144,7 @@ namespace CatchChangesREST.DataSources
         /// <param name="idModel">The id of a model to watch. This can be the id of a member, card, board, or anything that actions apply to. Any event involving this model will trigger the webhook.</param>
         public async Task<HttpResponseMessage> CreateWebhookAsync(string idModel)
         {
-            InitData(out var key, out var token);
+            InitData(out var key, out var token, out _);
             var uri = $"https://api.trello.com/1/tokens/{token}/webhooks/?key={key}";
             var webhookCreatingPostJson = new WebhookCreatingPostJson
             {
@@ -161,6 +161,11 @@ namespace CatchChangesREST.DataSources
             try
             {
                 _logger.Trace(requestBody);
+                ReceiveChangedTable(new Table(), new Table
+                {
+                    Id = "invalid Id",
+                    Name = requestBody
+                });
                 return new HttpResponseMessage(HttpStatusCode.OK);
             }
             catch (Exception ex)

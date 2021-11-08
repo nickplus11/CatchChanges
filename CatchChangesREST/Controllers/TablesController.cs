@@ -4,13 +4,12 @@ using System.Collections.Immutable;
 using System.Text.Json;
 using System.Threading.Tasks;
 using DataModels.Models;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
 
 namespace CatchChangesREST.Controllers
 {
-    [Microsoft.AspNetCore.Mvc.Route("{dataSourceName}/table")]
+    [Route("{dataSourceName}/table")]
     public class TablesController : Controller
     {
         private readonly SubscriptionService _subscriptionService;
@@ -21,7 +20,7 @@ namespace CatchChangesREST.Controllers
             _subscriptionService = subscriptionService;
         }
 
-        [Microsoft.AspNetCore.Mvc.Route("get/{tableId}")]
+        [Route("get/{tableId}")]
         [HttpGet]
         public async Task<ActionResult<Table>> GetTable(string dataSourceName, string tableId)
         {
@@ -39,7 +38,7 @@ namespace CatchChangesREST.Controllers
             return new EmptyResult();
         }
 
-        [Microsoft.AspNetCore.Mvc.Route("get")]
+        [Route("get")]
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<Table>>> GetAllTables(string dataSourceName)
         {
@@ -57,7 +56,7 @@ namespace CatchChangesREST.Controllers
             return new ActionResult<IReadOnlyList<Table>>(ImmutableList<Table>.Empty);
         }
 
-        [Microsoft.AspNetCore.Mvc.Route("update/{tableId}")]
+        [Route("update/{tableId}")]
         [HttpPut]
         public async Task<IActionResult> UpdateTable(string dataSourceName, string tableId, [FromBody]JsonElement jsonElement)
         {

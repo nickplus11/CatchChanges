@@ -18,23 +18,25 @@ namespace CatchChangesREST
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-        public static void InitData(out string key, out string token)
+        public static void InitData(out string key, out string token, out string telegramToken)
         {
             if (CredentialsManager.TryInit())
             {
-                key = CredentialsManager.Credentials.Key;
-                token = CredentialsManager.Credentials.Token;
+                key = CredentialsManager.Credentials.TrelloKey;
+                token = CredentialsManager.Credentials.TrelloToken;
+                telegramToken = CredentialsManager.Credentials.TelegramToken;
             }
             else
             {
                 key = string.Empty;
                 token = string.Empty;
+                telegramToken = string.Empty;
             }
         }
 
         public static async Task<HttpResponseMessage> GetAsync(string url)
         {
-            InitData(out var key, out var token);
+            InitData(out var key, out var token, out _);
             return await new HttpClient().GetAsync(url + $"&key={key}&token={token}");
         }
 

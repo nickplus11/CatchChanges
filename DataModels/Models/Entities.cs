@@ -22,5 +22,11 @@ namespace DataModels.Models
         [JsonPropertyName("idList")] public string ListId { get; init; }
     }
 
-    public record Credentials(string Key, string Token);
+    public record Credentials(string TrelloKey, string TrelloToken, string TelegramToken);
+
+    public record ClientUpdate()
+    {
+        [JsonPropertyName("update_id")] public string UpdateId { get; init; }
+        [JsonPropertyName("message")] public string Message { get; init; }
+    }
 }

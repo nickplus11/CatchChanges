@@ -10,12 +10,12 @@ using NLog;
 namespace CatchChangesREST.Controllers
 {
     [Route("{dataSourceName}/webhook")]
-    public class WebhooksController : Controller
+    public class DataSourceWebhooksController : Controller
     {
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
         private readonly SubscriptionService _subscriptionService;
 
-        public WebhooksController(SubscriptionService subscriptionService)
+        public DataSourceWebhooksController(SubscriptionService subscriptionService)
         {
             _subscriptionService = subscriptionService;
         }

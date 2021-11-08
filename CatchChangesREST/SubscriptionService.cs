@@ -9,6 +9,7 @@ namespace CatchChangesREST
     {
         public readonly IReadOnlyList<IClient> Clients;
         public readonly IReadOnlyList<IDataSource> DataSources;
+        public readonly Dictionary<string, IClient> ClientByName;
         public readonly Dictionary<string, IDataSource> DataSourceByName;
 
         public SubscriptionService(IEnumerable<IClient> clients, IEnumerable<IDataSource> dataSources)
@@ -16,12 +17,14 @@ namespace CatchChangesREST
             Clients = clients.ToList();
             DataSources = dataSources.ToList();
             DataSourceByName = new();
+            ClientByName = new();
 
             foreach (var dataSource in DataSources)
             {
-                DataSourceByName.Add(dataSource.Name, dataSource);
+                DataSourceByName[dataSource.Name] = dataSource;
                 foreach (var client in Clients)
                 {
+                    ClientByName[client.Name] = client;
                     dataSource.TableChanged += client.OnTableChanged;
                     dataSource.ListChanged += client.OnListChanged;
                     dataSource.CardChanged += client.OnCardChanged;

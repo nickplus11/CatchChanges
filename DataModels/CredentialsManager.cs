@@ -17,7 +17,6 @@ namespace DataModels
             {
                 var text = File.ReadAllText("credentials.json");
                 var credentials = JsonSerializer.Deserialize<Credentials>(text);
-                Logger.Info($"Key: {credentials?.Key} Token: {credentials?.Token}");
                 Credentials = credentials ?? throw new Exception("Json deserialization returned null value");
                 return true;
             }

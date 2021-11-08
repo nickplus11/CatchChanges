@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text.Json;
 using System.Threading.Tasks;
+using CatchChangesREST.Clients;
 using CatchChangesREST.Clients.Telegram;
 using CatchChangesREST.DataSources;
 using DataModels.Models;
@@ -39,6 +40,9 @@ namespace CatchChangesREST.Controllers
                     $"Checking model of update. Message: {update?.Message} Chat id: {update?.Message?.Chat?.Id} Text: {update?.Message?.Text}");
 
                 await client.SendAsync(update.Message.Chat.Id, jsonElement.ToString());
+                if (update.Message.Text == Commands.Subscribe)
+                    client.Subscribe(update.Message.From, update.Message.Chat);
+
                 return new ContentResult
                 {
                     Content = "Webhook creation executed",

@@ -101,36 +101,20 @@ namespace CatchChangesREST.Clients.Telegram
 
         private string ParseInfoForUser(string input)
         {
-            string toUser = "Unable to parse a reply from API";
+            string toUser = input;
             try
             {
-                var reply = SubscriptionReply.FromJson(input);
+                var reply = NewCardReply.FromJson(input);
                 if (reply != null)
                 {
-                    toUser = reply.Message.From.FirstName + " " + reply.Message.From.LastName +
-                             " is now subscribed on updates";
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.Trace(e);
-                throw;
-            }
-
-            try
-            {
-                var reply = OnUpdateReply.FromJson(input);
-                if (reply != null)
-                {
-                    toUser = reply.Action.Display.TranslationKey + " with table " + reply.Model.Name;
+                    toUser = reply.Action.Display.TranslationKey + " in table " + reply.Model.Name;
                     if (reply.Action.Data.Card.Name != null)
                         toUser += " with card " + reply.Action.Data.Card.Name;
                 }
-                
             }
             catch (Exception e)
             {
-                Logger.Trace(e);
+                Logger.Error(e);
                 throw;
             }
 

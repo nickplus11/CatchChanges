@@ -29,12 +29,19 @@ namespace CatchChangesREST.Clients.Telegram
 
         public void OnTableChanged(object sender, TableChangedEventArgs args)
         {
-            _subscribersId.Select(async sub =>
+            try
             {
-                var (chatId, info) = (_chatIdByUserId[sub], args.NewTable.Name);
-                Logger.Trace($"Sending to telegram. Chat: {chatId}");
-                await SendAsync(chatId, info);
-            }).ToList();
+                _subscribersId.Select(async sub =>
+                {
+                    var (chatId, info) = (_chatIdByUserId[sub], args.NewTable.Name);
+                    Logger.Trace($"Sending to telegram. Chat: {chatId}");
+                    await SendAsync(chatId, ParseInfoForUser(info));
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
         }
 
         public void OnListChanged(object sender, ListChangedEventArgs args)
@@ -66,7 +73,7 @@ namespace CatchChangesREST.Clients.Telegram
                 var model = new SendMessageModel
                 {
                     ChatId = chatId,
-                    Text = ParseInfoForUser(info)
+                    Text = info
                 };
                 await RequestBuilder.PostAsync(url, model);
             }

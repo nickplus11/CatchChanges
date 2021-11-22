@@ -8,19 +8,19 @@ namespace DataModels.Models
         [JsonPropertyName("id")] public string Id { get; init; }
     }
 
-    public record List
+    /*public record List
     {
         [JsonPropertyName("name")] public string Name { get; init; }
         [JsonPropertyName("id")] public string Id { get; init; }
         [JsonPropertyName("idTable")] public string TableId { get; init; }
-    }
+    }*/
 
-    public record Card
+    /*public record Card
     {
         [JsonPropertyName("name")] public string Name { get; init; }
         [JsonPropertyName("id")] public string Id { get; init; }
         [JsonPropertyName("idList")] public string ListId { get; init; }
-    }
+    }*/
 
     public record Credentials(string TrelloKey, string TrelloToken, string TelegramToken);
 

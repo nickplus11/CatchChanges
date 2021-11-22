@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DataModels;
+using DataModels.Models;
 using JetBrains.Annotations;
 using NLog;
 
@@ -65,7 +66,7 @@ namespace CatchChangesREST.Clients.Telegram
                 var model = new SendMessageModel
                 {
                     ChatId = chatId,
-                    Text = info
+                    Text = ParseInfoForUser(info)
                 };
                 await RequestBuilder.PostAsync(url, model);
             }
@@ -89,6 +90,37 @@ namespace CatchChangesREST.Clients.Telegram
             {
                 Logger.Error(ex);
             }
+        }
+
+        private string ParseInfoForUser(string input)
+        {
+            string toUser = "Unable to parse a reply from API";
+            try
+            {
+                var reply = SubscriptionReply.FromJson(input);
+                toUser = reply.Message.From.FirstName + " " + reply.Message.From.LastName +
+                                " is now subscribed on updates";
+            }
+            catch (Exception e)
+            {
+                Logger.Trace(e);
+                throw;
+            }
+
+            try
+            {
+                var reply = OnUpdateReply.FromJson(input);
+                toUser = reply.Action.Display.TranslationKey + " with table " + reply.Model.Name;
+                if (reply.Action.Data.Card.Name != null)
+                    toUser += " with card " + reply.Action.Data.Card.Name;
+            }
+            catch (Exception e)
+            {
+                Logger.Trace(e);
+                throw;
+            }
+
+            return toUser;
         }
     }
 }

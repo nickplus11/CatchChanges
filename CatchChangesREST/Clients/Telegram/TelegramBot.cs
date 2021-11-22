@@ -105,8 +105,11 @@ namespace CatchChangesREST.Clients.Telegram
             try
             {
                 var reply = SubscriptionReply.FromJson(input);
-                toUser = reply.Message.From.FirstName + " " + reply.Message.From.LastName +
-                                " is now subscribed on updates";
+                if (reply != null)
+                {
+                    toUser = reply.Message.From.FirstName + " " + reply.Message.From.LastName +
+                             " is now subscribed on updates";
+                }
             }
             catch (Exception e)
             {
@@ -117,9 +120,13 @@ namespace CatchChangesREST.Clients.Telegram
             try
             {
                 var reply = OnUpdateReply.FromJson(input);
-                toUser = reply.Action.Display.TranslationKey + " with table " + reply.Model.Name;
-                if (reply.Action.Data.Card.Name != null)
-                    toUser += " with card " + reply.Action.Data.Card.Name;
+                if (reply != null)
+                {
+                    toUser = reply.Action.Display.TranslationKey + " with table " + reply.Model.Name;
+                    if (reply.Action.Data.Card.Name != null)
+                        toUser += " with card " + reply.Action.Data.Card.Name;
+                }
+                
             }
             catch (Exception e)
             {

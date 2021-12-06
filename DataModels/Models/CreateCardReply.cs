@@ -9,7 +9,7 @@ using Newtonsoft.Json.Converters;
 
 namespace DataModels.Models
 {
-    public partial class NewCardReply
+    public partial class CreateCardReply
     {
         [JsonProperty("model")]
         public Model Model { get; set; }
@@ -30,7 +30,7 @@ namespace DataModels.Models
         public Data Data { get; set; }
 
         [JsonProperty("type")]
-        public string Type { get; set; }
+        public EActionTypes Type { get; set; }
 
         [JsonProperty("date")]
         public DateTimeOffset Date { get; set; }
@@ -319,17 +319,17 @@ namespace DataModels.Models
         public Uri Url { get; set; }
     }
 
-    public partial class NewCardReply
+    public partial class Action
     {
-        public static NewCardReply FromJson(string json) => JsonConvert.DeserializeObject<NewCardReply>(json, DataModels.Models.NewCardConverter.Settings);
+        public static Action FromJson(string json) => JsonConvert.DeserializeObject<Action>(json, DataModels.Models.ActionConverter.Settings);
     }
 
     public static class SerializeNewCard
     {
-        public static string ToJson(this NewCardReply self) => JsonConvert.SerializeObject(self, DataModels.Models.NewCardConverter.Settings);
+        public static string ToJson(this CreateCardReply self) => JsonConvert.SerializeObject(self, DataModels.Models.ActionConverter.Settings);
     }
 
-    internal static class NewCardConverter
+    internal static class ActionConverter
     {
         public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
         {

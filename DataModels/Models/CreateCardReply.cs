@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace DataModels.Models
 {
-    
-
-    public partial class OnUpdateReply
+    public partial class CreateCardReply
     {
         [JsonProperty("model")]
         public Model Model { get; set; }
@@ -32,7 +30,7 @@ namespace DataModels.Models
         public Data Data { get; set; }
 
         [JsonProperty("type")]
-        public string Type { get; set; }
+        public EActionTypes Type { get; set; }
 
         [JsonProperty("date")]
         public DateTimeOffset Date { get; set; }
@@ -138,16 +136,16 @@ namespace DataModels.Models
         public bool ActivityBlocked { get; set; }
 
         [JsonProperty("avatarHash")]
-        public object AvatarHash { get; set; }
+        public string AvatarHash { get; set; }
 
         [JsonProperty("avatarUrl")]
-        public object AvatarUrl { get; set; }
+        public Uri AvatarUrl { get; set; }
 
         [JsonProperty("fullName")]
         public string FullName { get; set; }
 
         [JsonProperty("idMemberReferrer")]
-        public object IdMemberReferrer { get; set; }
+        public string IdMemberReferrer { get; set; }
 
         [JsonProperty("initials")]
         public string Initials { get; set; }
@@ -194,11 +192,11 @@ namespace DataModels.Models
         [JsonProperty("shortUrl")]
         public Uri ShortUrl { get; set; }
 
-        [JsonProperty("prefs")]
-        public Prefs Prefs { get; set; }
-
         [JsonProperty("labelNames")]
         public LabelNames LabelNames { get; set; }
+
+        [JsonProperty("prefs")]
+        public Prefs Prefs { get; set; }
     }
 
     public partial class LabelNames
@@ -276,19 +274,16 @@ namespace DataModels.Models
         public string Background { get; set; }
 
         [JsonProperty("backgroundImage")]
-        public object BackgroundImage { get; set; }
+        public Uri BackgroundImage { get; set; }
 
         [JsonProperty("backgroundImageScaled")]
-        public object BackgroundImageScaled { get; set; }
+        public List<BackgroundImageScaled> BackgroundImageScaled { get; set; }
 
         [JsonProperty("backgroundTile")]
         public bool BackgroundTile { get; set; }
 
         [JsonProperty("backgroundBrightness")]
         public string BackgroundBrightness { get; set; }
-
-        [JsonProperty("backgroundColor")]
-        public string BackgroundColor { get; set; }
 
         [JsonProperty("backgroundBottomColor")]
         public string BackgroundBottomColor { get; set; }
@@ -312,17 +307,29 @@ namespace DataModels.Models
         public bool CanInvite { get; set; }
     }
 
-    public partial class OnUpdateReply
+    public partial class BackgroundImageScaled
     {
-        public static OnUpdateReply FromJson(string json) => JsonConvert.DeserializeObject<OnUpdateReply>(json, DataModels.Models.UpdateConverter.Settings);
+        [JsonProperty("width")]
+        public long Width { get; set; }
+
+        [JsonProperty("height")]
+        public long Height { get; set; }
+
+        [JsonProperty("url")]
+        public Uri Url { get; set; }
     }
 
-    public static class SerializeUpdateReply
+    public partial class Action
     {
-        public static string ToJson(this OnUpdateReply self) => JsonConvert.SerializeObject(self, DataModels.Models.UpdateConverter.Settings);
+        public static Action FromJson(string json) => JsonConvert.DeserializeObject<Action>(json, DataModels.Models.ActionConverter.Settings);
     }
 
-    internal static class UpdateConverter
+    public static class SerializeNewCard
+    {
+        public static string ToJson(this CreateCardReply self) => JsonConvert.SerializeObject(self, DataModels.Models.ActionConverter.Settings);
+    }
+
+    internal static class ActionConverter
     {
         public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
         {

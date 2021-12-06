@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using DataModels;
 using DataModels.Models;
 using JetBrains.Annotations;
+using Newtonsoft.Json.Linq;
 using NLog;
+using Action = DataModels.Models.Action;
 
 namespace CatchChangesREST.Clients.Telegram
 {
@@ -101,19 +103,27 @@ namespace CatchChangesREST.Clients.Telegram
 
         private string ParseInfoForUser(string input)
         {
+            string toUser = input;
             try
             {
-                var reply = NewCardReply.FromJson(input);
-                var toUser = $"Action type: {reply?.Action.Display.TranslationKey}" + Environment.NewLine;
-                toUser += $"Table name: {reply?.Model.Name}" + Environment.NewLine;
-                toUser += $"Card info {reply?.Action.Data.Card.Name}";
-                return toUser;
+                JObject reply = JObject.Parse(input);
+
+                DataModels.Models.Action action = Action.FromJson(reply.Last.ToString());
+
+                if (action != null)
+                {
+                    toUser = "New event: " + action.Display.TranslationKey + " with " + action.Data.ToString() +
+                             " by " +
+                             action.MemberCreator.FullName;
+                }
             }
             catch (Exception e)
             {
                 Logger.Error(e);
                 throw;
             }
+
+            return toUser;
         }
     }
 }

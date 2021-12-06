@@ -101,24 +101,19 @@ namespace CatchChangesREST.Clients.Telegram
 
         private string ParseInfoForUser(string input)
         {
-            string toUser = input;
             try
             {
                 var reply = NewCardReply.FromJson(input);
-                if (reply != null)
-                {
-                    toUser = reply.Action.Display.TranslationKey + " in table " + reply.Model.Name;
-                    if (reply.Action.Data.Card.Name != null)
-                        toUser += " with card " + reply.Action.Data.Card.Name;
-                }
+                var toUser = $"Action type: {reply?.Action.Display.TranslationKey}" + Environment.NewLine;
+                toUser += $"Table name: {reply?.Model.Name}" + Environment.NewLine;
+                toUser += $"Card info {reply?.Action.Data.Card.Name}";
+                return toUser;
             }
             catch (Exception e)
             {
                 Logger.Error(e);
                 throw;
             }
-
-            return toUser;
         }
     }
 }

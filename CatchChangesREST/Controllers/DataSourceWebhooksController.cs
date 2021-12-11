@@ -22,12 +22,12 @@ namespace CatchChangesREST.Controllers
 
         [Route("create")]
         [HttpPost]
-        public async Task<IActionResult> CreateWebhooks(string dataSourceName, [FromBody] JsonElement jsonElement)
+        public async Task<IActionResult> CreateWebhooks(string dataSourceName, [FromBody] CreateWebhookParams webhookParams)
         {
             try
             {
                 var dataSource = _subscriptionService.DataSourceByName[dataSourceName];
-                var id = JsonSerializer.Deserialize<CreateWebhookParams>(jsonElement.ToString()).IdModel;
+                var id = webhookParams.IdModel;
                 var table = await dataSource.GetTableAsync(id);
                 _logger.Trace($"Creating new webhook for board: {table.Name}");
                 await dataSource.CreateWebhookAsync(table.Id);

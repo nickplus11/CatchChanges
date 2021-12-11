@@ -16,19 +16,27 @@ namespace DataModels
 
         public void ReceiveChangedTable(Table oldTable, Table newTable);
         public void ReceiveChangedList(Card oldCard, Card newList);
-        public void ReceiveChangedCard(List oldList, List newCard);
+        public void ReceiveChangedCard(ListOfCards oldListOfCards, ListOfCards newCard);
 
         public Task<bool> TryChangeTableAsync(Table targetTable, Table newTable);
         public Task<bool> TryChangeTableAsync(Table targetTable, Table newTable, CancellationToken cancellationToken);
 
-        public Task<bool> TryChangeListAsync(List targetList, List newList);
-        public Task<bool> TryChangeListAsync(List targetList, List newList, CancellationToken cancellationToken);
+        public Task<bool> TryChangeListAsync(ListOfCards targetListOfCards, ListOfCards newListOfCards);
+
+        public Task<bool> TryChangeListAsync(ListOfCards targetListOfCards, ListOfCards newListOfCards,
+            CancellationToken cancellationToken);
 
         public Task<bool> TryChangeCardAsync(Card targetCard, Card newCard);
         public Task<bool> TryChangeCardAsync(Card targetCard, Card newCard, CancellationToken cancellationToken);
 
         public Task<IReadOnlyList<Table>> GetAllTablesAsync();
         public Task<Table> GetTableAsync(string tableId);
+
+        public Task<IReadOnlyList<ListOfCards>> GetAllListsAsync(string tableId);
+        public Task<ListOfCards> GetListAsync(string listId);
+
+        public Task<IReadOnlyList<Card>> GetAllCardsAsync(string listId);
+        public Task<Card> GetCardAsync(string cardId);
 
         public Task<HttpResponseMessage> CreateWebhookAsync(string idModel);
         public Task<HttpResponseMessage> ReceiveWebhookAsync(string idModel);
@@ -43,7 +51,7 @@ namespace DataModels
 
     public class ListChangedEventArgs : EventArgs, IHaveChanges
     {
-        public List List { get; set; }
+        public ListOfCards ListOfCards { get; set; }
         public bool HaveChanges { get; }
     }
 

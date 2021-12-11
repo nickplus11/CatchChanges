@@ -58,16 +58,16 @@ namespace CatchChangesREST.Controllers
 
         [Route("update/{tableId}")]
         [HttpPut]
-        public async Task<IActionResult> UpdateTable(string dataSourceName, string tableId, [FromBody]JsonElement jsonElement)
+        public async Task<IActionResult> UpdateTable(string dataSourceName, string tableId,
+            [FromBody] UpdateTableParams tableParams)
         {
             try
             {
-                var updateTableParams = HttpHelper.GetModel<UpdateTableParams>(jsonElement.ToString());
-                if (updateTableParams is null) throw new Exception("Update table request content has not been read correctly");
                 var dataSource = _subscriptionService.DataSourceByName[dataSourceName];
                 var targetTable = await dataSource.GetTableAsync(tableId);
-                var newTable = targetTable with { Name = updateTableParams.NewName };
+                var newTable = targetTable with { Name = tableParams.NewName };
                 await dataSource.TryChangeTableAsync(targetTable, newTable);
+                // todo check out cases with rights absence
                 _logger.Trace($"Table name has been changed. From: {targetTable.Name} To: {newTable.Name}");
                 return new ContentResult
                 {

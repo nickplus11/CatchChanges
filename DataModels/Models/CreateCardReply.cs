@@ -54,7 +54,7 @@ namespace DataModels.Models
         public Ard Card { get; set; }
 
         [JsonProperty("list")]
-        public List List { get; set; }
+        public ListOfCards ListOfCards { get; set; }
 
         [JsonProperty("board")]
         public Ard Board { get; set; }
@@ -75,7 +75,7 @@ namespace DataModels.Models
         public long? IdShort { get; set; }
     }
 
-    public partial class List
+    public partial class ListOfCards
     {
         [JsonProperty("id")]
         public string Id { get; set; }

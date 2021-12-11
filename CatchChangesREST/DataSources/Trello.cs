@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -18,6 +19,7 @@ namespace CatchChangesREST.DataSources
     [UsedImplicitly]
     public class Trello : IDataSource
     {
+        private const string BaseUrl = "https://api.trello.com";
         private readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
         public Trello()
@@ -40,7 +42,7 @@ namespace CatchChangesREST.DataSources
             ListChanged?.Invoke(this, new ListChangedEventArgs { });
         }
 
-        public void ReceiveChangedCard(List oldList, List newCard)
+        public void ReceiveChangedCard(ListOfCards oldListOfCards, ListOfCards newCard)
         {
             CardChanged?.Invoke(this, new CardChangedEventArgs { });
         }
@@ -56,7 +58,7 @@ namespace CatchChangesREST.DataSources
             try
             {
                 InitData(out var key, out var token, out _);
-                var url = $"https://api.trello.com/1/boards/{targetTable.Id}";
+                var url = $"{BaseUrl}/1/boards/{targetTable.Id}";
                 var model = new
                 {
                     key = key,
@@ -79,12 +81,13 @@ namespace CatchChangesREST.DataSources
             return false;
         }
 
-        public async Task<bool> TryChangeListAsync(List targetList, List newList)
+        public async Task<bool> TryChangeListAsync(ListOfCards targetListOfCards, ListOfCards newListOfCards)
         {
-            return await TryChangeListAsync(targetList, newList, CancellationToken.None);
+            return await TryChangeListAsync(targetListOfCards, newListOfCards, CancellationToken.None);
         }
 
-        public async Task<bool> TryChangeListAsync(List targetList, List newList, CancellationToken cancellationToken)
+        public async Task<bool> TryChangeListAsync(ListOfCards targetListOfCards, ListOfCards newListOfCards,
+            CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
@@ -103,7 +106,7 @@ namespace CatchChangesREST.DataSources
         {
             try
             {
-                var url = "https://api.trello.com/1/members/me/boards?fields=name,url";
+                var url = $"{BaseUrl}/1/members/me/boards?fields=name,url";
                 var response = await GetAsync(url);
                 var stream = await response.Content.ReadAsStreamAsync();
                 var tables = await JsonSerializer.DeserializeAsync<List<Table>>(stream)
@@ -140,6 +143,62 @@ namespace CatchChangesREST.DataSources
             }
         }
 
+        // NOTE API can not process this
+        // TODO find out what the problem is
+        public async Task<IReadOnlyList<ListOfCards>> GetAllListsAsync(string tableId)
+        {
+            try
+            {
+                var url = $"{BaseUrl}/1/boards/{tableId}/lists";
+                var response = await GetAsync(url);
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception(await new StreamReader(await response.Content.ReadAsStreamAsync())
+                        .ReadToEndAsync());
+
+                var stream = await response.Content.ReadAsStreamAsync();
+                var lists = await JsonSerializer.DeserializeAsync<List<ListOfCards>>(stream)
+                            ?? throw new Exception("Lists have not been received");
+
+                _logger.Trace($"Received some lists of cards. Count: {lists.Count}. Names: " +
+                              string.Join(", ", lists.Select(l => l.Name)));
+                return lists;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+                return null;
+            }
+        }
+
+        public async Task<ListOfCards> GetListAsync(string listId)
+        {
+            try
+            {
+                var url = $"{BaseUrl}/1/lists/{listId}";
+                var response = await GetAsync(url);
+                var stream = await response.Content.ReadAsStreamAsync();
+                var list = await JsonSerializer.DeserializeAsync<ListOfCards>(stream)
+                           ?? throw new Exception("List hasn't been received");
+
+                _logger.Trace($"Received list of cards. Name: {list.Name} Id: {list.Id}");
+                return list;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+                return null;
+            }
+        }
+
+        public Task<IReadOnlyList<Card>> GetAllCardsAsync(string listId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Card> GetCardAsync(string cardId)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <param name="idModel">The id of a model to watch. This can be the id of a member, card, board, or anything that actions apply to. Any event involving this model will trigger the webhook.</param>
         public async Task<HttpResponseMessage> CreateWebhookAsync(string idModel)
@@ -172,6 +231,7 @@ namespace CatchChangesREST.DataSources
             {
                 _logger.Error(ex);
             }
+
             return new HttpResponseMessage(HttpStatusCode.InternalServerError);
         }
     }

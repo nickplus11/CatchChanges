@@ -1,8 +1,7 @@
-using CatchChangesREST.Clients;
-using CatchChangesREST.DataSources;
 using DataModels;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,12 +11,11 @@ namespace CatchChangesREST
 {
     public class Startup
     {
+        private readonly IConfiguration _configuration;
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            _configuration = configuration;
         }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -25,13 +23,21 @@ namespace CatchChangesREST
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "CatchChangesREST", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo {Title = "CatchChangesREST", Version = "v1"});
             });
 
-            var assemblies = new[] { typeof(Startup).Assembly };
+            var assemblies = new[] {typeof(Startup).Assembly};
             services.RegisterAll<IClient>(assemblies);
             services.RegisterAll<IDataSource>(assemblies);
             services.AddSingleton<SubscriptionService>();
+
+            var host = _configuration["Host"] ?? "postgres";
+            var port = _configuration["Port"] ?? "5432";
+            var name = _configuration["DbName"] ?? "catch_changes_db";
+            var user = _configuration["UserId"] ?? "admin";
+            var password = _configuration["Password"] ?? "password";
+            services.AddEntityFrameworkNpgsql().AddDbContext<SourceContext>(opt =>
+                opt.UseNpgsql($"Host={host};Port={port};Database={name};User ID={user};Password={password}"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -12,6 +12,7 @@ namespace CatchChangesREST
     public class Startup
     {
         private readonly IConfiguration _configuration;
+
         public Startup(IConfiguration configuration)
         {
             _configuration = configuration;
@@ -41,7 +42,10 @@ namespace CatchChangesREST
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, SubscriptionService service)
+        public void Configure(IApplicationBuilder app,
+            IWebHostEnvironment env,
+            SubscriptionService service,
+            SourceContext sourceContext)
         {
             if (env.IsDevelopment())
             {
@@ -58,6 +62,8 @@ namespace CatchChangesREST
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+
+            sourceContext.Database.Migrate();
         }
     }
 }

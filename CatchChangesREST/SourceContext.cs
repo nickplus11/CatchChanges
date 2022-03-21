@@ -9,21 +9,19 @@ public sealed class SourceContext : DbContext
 
     public SourceContext()
     {
-        Database.EnsureCreated();
     }
 
     public SourceContext(DbContextOptions<SourceContext> options)
         : base(options)
     {
-        Database.EnsureCreated();
     }
 }
 
 public class TableModel
 {
-    [Key]
-    public string Id { get; set; }
+    [Key] public string Id { get; set; }
     public string Name { get; set; }
+    public string Status { get; set; }
 
-    public override string ToString() => $"Table model. ID: {Id}. Name: {Name}.";
+    public override string ToString() => $"Table model. ID: {Id}. Name: {Name}. Status: {Status}";
 }

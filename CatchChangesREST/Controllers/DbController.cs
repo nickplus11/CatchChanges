@@ -46,17 +46,17 @@ public class DbController
 
     [Route("table")]
     [HttpPost]
-    public async Task<IActionResult> AddTable(string id, string name)
+    public async Task<IActionResult> AddTable(string id, string name, string status)
     {
         try
         {
-            var table = new TableModel {Id = id, Name = name};
+            var table = new TableModel {Id = id, Name = name, Status = status};
             await _sourceContext.Tables.AddAsync(table);
             await _sourceContext.SaveChangesAsync();
-            _logger.Trace($"Added a new table to DB. Id: {table.Id}, Name: {table.Name}");
+            _logger.Trace($"Added a new table to DB. Id: {table.Id}. Name: {table.Name}. Status: {table.Status}");
             return new ContentResult
             {
-                Content = $"Added a new table to DB. Id: {table.Id}. Name: {table.Name}",
+                Content = $"Added a new table to DB. Id: {table.Id}. Name: {table.Name}. Status: {table.Status}",
                 StatusCode = 200
             };
         }

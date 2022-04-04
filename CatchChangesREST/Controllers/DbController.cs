@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -20,28 +21,20 @@ public class DbController
 
     [Route("tables")]
     [HttpGet]
-    public async Task<IActionResult> GetTables()
+    public async Task<ActionResult<IEnumerable<TableModel>>> GetTables()
     {
         try
         {
             var tables = _sourceContext.Tables.ToList();
             _logger.Trace($"Received tables from DB. Count: {tables.Count}");
-            return new ContentResult
-            {
-                Content = string.Join("\n", tables),
-                StatusCode = 200
-            };
+            return new ActionResult<IEnumerable<TableModel>>(tables);
         }
         catch (Exception ex)
         {
             _logger.Error(ex);
         }
 
-        return new ContentResult
-        {
-            Content = "Error occured while attempting to receive data from DB",
-            StatusCode = 500
-        };
+        return new EmptyResult();
     }
 
     [Route("table")]

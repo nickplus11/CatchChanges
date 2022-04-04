@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace CatchChangesREST;
@@ -19,9 +20,9 @@ public sealed class SourceContext : DbContext
 
 public class TableModel
 {
-    [Key] public string Id { get; set; }
-    public string Name { get; set; }
-    public string Status { get; set; }
+    [Key] [JsonPropertyName("Id")] public string Id { get; set; }
+    [JsonPropertyName("Name")] public string Name { get; set; }
+    [JsonPropertyName("Status")] public string Status { get; set; }
 
     public override string ToString() => $"Table model. ID: {Id}. Name: {Name}. Status: {Status}";
 }

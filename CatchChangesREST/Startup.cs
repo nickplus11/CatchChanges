@@ -56,7 +56,7 @@ namespace CatchChangesREST
             app.UseSwagger();
             app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "CatchChangesREST v1"); });
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseRouting();
 
@@ -64,10 +64,10 @@ namespace CatchChangesREST
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
-            // app.UseForwardedHeaders(new ForwardedHeadersOptions
-            // {
-            //     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-            // });
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
 
             sourceContext.Database.Migrate();
         }
